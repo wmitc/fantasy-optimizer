@@ -1,0 +1,38 @@
+# Copy this file to `config.toml` and fill in your values.
+# `config.toml` is gitignored because the cookies below are secrets.
+#
+# You can also override any value with an environment variable (see names in brackets),
+# which take precedence over this file. A `.env` file is loaded automatically.
+
+[league]
+# League ID: the `leagueId=...` number in your ESPN league URL.   [FO_LEAGUE_ID]
+league_id = 123456
+# Season year. For a season spanning 2025-26, ESPN uses the END year: 2026.   [FO_YEAR]
+year = 2026
+
+# --- Private-league authentication (browser cookies) -------------------------
+# Required only for private leagues. To find these:
+#   1. Log in to fantasy.espn.com in your browser.
+#   2. Open DevTools -> Application/Storage -> Cookies -> https://fantasy.espn.com
+#   3. Copy the values of the `espn_s2` and `SWID` cookies.
+# SWID includes the surrounding braces, e.g. "{XXXXXXXX-XXXX-...}".
+espn_s2 = ""   # [FO_ESPN_S2]
+swid = ""      # [FO_SWID]
+
+[valuation]
+# Weight on ESPN projections vs season-to-date actuals when blending a player's
+# per-game line: blended = proj_weight * projected + (1 - proj_weight) * actual.
+# 1.0 = trust projections only, 0.0 = trust season actuals only.   [FO_PROJ_WEIGHT]
+proj_weight = 0.5
+# Size of the reference pool (rostered + top free agents) used to compute z-scores. [FO_POOL_SIZE]
+pool_size = 200
+
+[streaming]
+# Minimum 8-cat z-score value for a free agent to be considered as a streaming add. [FO_MIN_VALUE]
+min_value = 0.0
+# Roster players with value at or above this are "locked" and never suggested as drops. [FO_LOCK_VALUE]
+lock_value = 6.0
+
+[cache]
+# Time-to-live (seconds) for cached ESPN API responses. The FA pull is slow. [FO_CACHE_TTL]
+ttl_seconds = 1800
