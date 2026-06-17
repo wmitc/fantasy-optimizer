@@ -23,6 +23,8 @@ from .config import Config
 T = TypeVar("T")
 
 _CACHE_DIR = Path(".cache")
+# Bump when the cached object shape changes so stale pickles are invalidated.
+_CACHE_VERSION = 2
 # Reverse map of pro-team abbreviation -> id (PRO_TEAM_MAP is id -> abbrev).
 _TEAM_ABBR_TO_ID = {abbr: tid for tid, abbr in PRO_TEAM_MAP.items() if isinstance(tid, int)}
 
@@ -136,7 +138,7 @@ class EspnClient:
         """Free-agent / waiver pool for the current week (cached), with schedules attached."""
         size = size or self.config.pool_size
         sp = self.scoring_period
-        key = f"fa:{self.config.league_id}:{self.config.year}:{sp}:{size}:{position}"
+        key = f"fa:v{_CACHE_VERSION}:{self.config.league_id}:{self.config.year}:{sp}:{size}:{position}"
 
         def fetch() -> list[Player]:
             players = self.league.free_agents(size=size, position=position)

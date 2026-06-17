@@ -14,6 +14,8 @@ from .config import load_config
 from .optimizer import NON_STARTING_SLOTS
 from .recommend import Recommendation, build_recommendation
 from .schedule import player_game_days, player_opponent
+from .simulate import BacktestResult, run_backtest
+from .valuation import COUNTING_CATS
 
 _SLOT_ORDER = ["PG", "SG", "SF", "PF", "C", "G", "F", "UT"]
 _CORE_POS = ["PG", "SG", "SF", "PF", "C"]
@@ -140,6 +142,84 @@ def cmd_recommend(args: argparse.Namespace) -> int:
     return 0
 
 
+def _render_backtest(result: BacktestResult, console: Console) -> None:
+    ceiling = "unbounded (theoretical)" if result.max_add_value is None else f"value ≤ {result.max_add_value:g}"
+    header = (
+        f"[bold]{result.team_name}[/bold]  ·  season {result.year} backtest\n"
+        f"Weeks: {len(result.weeks)}  ·  max adds/week: {result.max_adds}  ·  streamer pool: {ceiling}\n"
+        f"Games  —  static: [bold]{result.total_static_games}[/bold]   "
+        f"streamed: [bold]{result.total_stream_games}[/bold]   "
+        f"extra: [bold green]+{result.total_extra_games}[/bold green]  "
+        f"(over {result.total_adds} adds)"
+    )
+    console.print(Panel(header, title="Season backtest: set-and-forget vs. streaming", expand=False))
+
+    table = Table(title="Per-week games & value", title_justify="left")
+    table.add_column("Wk", justify="right")
+    table.add_column("Days", justify="right")
+    table.add_column("Static G", justify="right")
+    table.add_column("Stream G", justify="right")
+    table.add_column("+G", justify="right", style="green")
+    table.add_column("+Value", justify="right", style="green")
+    table.add_column("Adds")
+    for w in result.weeks:
+        table.add_row(
+            str(w.matchup_period), str(w.days), str(w.static_games), str(w.stream_games),
+            f"+{w.extra_games}", f"{w.extra_value:+.0f}", ", ".join(w.adds) or "-",
+        )
+    console.print(table)
+
+    cat_table = Table(title="Season counting-stat production (sum of season-avg per started game)", title_justify="left")
+    cat_table.add_column("Strategy")
+    for cat in COUNTING_CATS:
+        cat_table.add_column(cat, justify="right")
+    cat_table.add_row("static", *[f"{result.static_categories[c]:.0f}" for c in COUNTING_CATS])
+    cat_table.add_row("streamed", *[f"{result.stream_categories[c]:.0f}" for c in COUNTING_CATS])
+    cat_table.add_row(
+        "[green]delta[/green]",
+        *[f"[green]+{result.stream_categories[c] - result.static_categories[c]:.0f}[/green]" for c in COUNTING_CATS],
+    )
+    console.print(cat_table)
+
+    console.print(
+        "[dim]Caveats: final-season roster/FA pool/injuries are used as proxies for each "
+        "historical week, and per-game production is the season average, not the actual box "
+        "score. This measures the opportunity streaming creates given real schedules.[/dim]"
+    )
+
+
+def cmd_simulate(args: argparse.Namespace) -> int:
+    console = Console()
+    try:
+        config = load_config(args.config)
+    except (ValueError, FileNotFoundError) as exc:
+        console.print(f"[red]Config error:[/red] {exc}")
+        return 2
+    if args.year is not None:
+        config.year = args.year
+    if args.team_id is not None:
+        config.team_id = args.team_id
+    if args.team_name is not None:
+        config.team_name = args.team_name
+
+    try:
+        result = run_backtest(
+            config,
+            use_cache=not args.no_cache,
+            from_week=args.from_week,
+            to_week=args.to_week,
+            max_adds=args.max_adds,
+            proj_weight=args.proj_weight,
+            max_add_value=args.max_add_value,
+        )
+    except LookupError as exc:
+        console.print(f"[red]{exc}[/red]")
+        return 2
+
+    _render_backtest(result, console)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="fantasy-optimizer", description=__doc__)
     sub = parser.add_subparsers(dest="command")
@@ -155,12 +235,26 @@ def build_parser() -> argparse.ArgumentParser:
     rec.add_argument("--no-cache", action="store_true", help="Bypass the on-disk API cache")
     rec.add_argument("--team-id", type=int, help="Your team id (overrides config)")
     rec.add_argument("--team-name", help="Your team name/abbrev (overrides config)")
+
+    sim = sub.add_parser("simulate", help="Backtest set-and-forget vs. streaming over a season")
+    sim.add_argument("--config", help="Path to config.toml")
+    sim.add_argument("--year", type=int, help="Season to backtest (default: config year)")
+    sim.add_argument("--from-week", type=int, default=1, help="First matchup period (default 1)")
+    sim.add_argument("--to-week", type=int, help="Last matchup period (default: last)")
+    sim.add_argument("--max-adds", type=int, default=3, help="Max waiver adds per week (default 3)")
+    sim.add_argument("--max-add-value", type=float, help="Cap streamer 8-cat value (e.g. 3.0) for realistic waiver adds; default unbounded")
+    sim.add_argument("--proj-weight", type=float, help="Override projection/actual blend weight")
+    sim.add_argument("--no-cache", action="store_true", help="Bypass the on-disk API cache")
+    sim.add_argument("--team-id", type=int, help="Your team id (overrides config)")
+    sim.add_argument("--team-name", help="Your team name/abbrev (overrides config)")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+    if args.command == "simulate":
+        return cmd_simulate(args)
     if args.command in (None, "recommend"):
         if args.command is None:  # default to recommend with defaults
             args = parser.parse_args(["recommend", *(argv or [])])

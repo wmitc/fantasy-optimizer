@@ -57,6 +57,26 @@ Output sections: a plan header (games & value for the week), a per-day optimal l
 the top streaming moves (add → drop with the value gain), an injured/IR panel, and the
 top free agents by value.
 
+## Backtest (off-season simulation)
+
+Quantify how much streaming would have helped over a **completed** season (ESPN keeps full
+schedules and season stats, so this works in the off-season):
+
+```bash
+fantasy-optimizer simulate --max-adds 3 --max-add-value 3.0   # realistic waiver adds
+fantasy-optimizer simulate --max-adds 3                       # theoretical ceiling (whole FA pool)
+```
+
+It replays each scoring week and compares **set-and-forget** vs. **streaming** (greedily
+adding up to `--max-adds` free agents per week to fill schedule gaps), reporting extra games
+played and counting-stat production. `--max-add-value` caps streamer value so you compare
+against genuine waiver-wire players rather than stars sitting in a finished league's FA pool.
+
+Fidelity caveats: a finished season only exposes each team's *final* roster, FA pool, and
+injury statuses (used as proxies for every historical week), and production is modeled as the
+**season average per scheduled game**, not the literal box score. So it measures the
+*opportunity* streaming creates given real schedules, not a move-by-move replay.
+
 ## Tuning
 
 - **`proj_weight`** (0–1): higher leans on ESPN projections, lower on season actuals. Early
