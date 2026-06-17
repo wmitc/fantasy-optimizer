@@ -8,28 +8,69 @@ keeping a quality starting lineup. This CLI pulls fresh data via
 [`espn-api`](https://github.com/cwendt94/espn-api), values the waiver-wire pool, and
 recommends the best add/drop moves and a day-by-day lineup.
 
-> Status: in active development. See the milestone PRs for progress.
-
 ## What it does
 
 - Pulls your roster, league settings, and the free-agent pool from ESPN.
 - Values every player with an **8-cat z-score** model (PTS, REB, AST, STL, BLK, 3PM, FG%, FT%),
-  blending ESPN projections with season-to-date actuals.
-- Maps the current scoring week's days and counts each player's games per day.
-- Recommends a day-by-day lineup that maximizes games played by good players, plus the
-  top streaming add/drop moves.
+  blending ESPN projections with season-to-date actuals. FG%/FT% are volume-weighted.
+- Maps the current scoring week into days and counts each player's games per day.
+- Optimizes a **day-by-day lineup** (max-weight assignment of players to starting slots)
+  that maximizes games played by good players, and ranks the **top streaming add/drop
+  moves** by how much each raises your projected weekly value.
 
 ## Quick start
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -e .
-cp config.example.toml config.toml   # then fill in your league + cookies
-python -m fantasy_optimizer.cli recommend
+cp config.example.toml config.toml      # then fill in league id, cookies, and your team
+fantasy-optimizer recommend             # or: python -m fantasy_optimizer.cli recommend
 ```
 
-See `config.example.toml` for how to obtain your `espn_s2` and `SWID` cookies (required for
-private leagues).
+## Configuration
+
+Settings come from `config.toml` (gitignored) with environment-variable overrides; a `.env`
+file is loaded automatically. See `config.example.toml` for the full annotated list.
+
+- `league_id`, `year` — from your ESPN league URL (use the season's **end** year).
+- `espn_s2`, `swid` — browser cookies, required for private leagues. Log in to
+  fantasy.espn.com, open DevTools → Application → Cookies, and copy both values.
+- `team_id` / `team_name` — which team is yours. If unset, the tool tries to match you via
+  the SWID owner id, and otherwise prints the team list so you can choose.
+- Valuation/streaming knobs: `proj_weight`, `pool_size`, `min_value`, `lock_value`,
+  `games_weight`.
+
+Starting-lineup slots are **auto-detected** from your league. This league runs
+1 PG, 1 SG, 1 SF, 1 PF, 2 C, 4 UTIL (10 active) + 4 bench + 1 IR.
+
+## Usage
+
+```bash
+fantasy-optimizer recommend                 # current week, cached data
+fantasy-optimizer recommend --explain       # show per-category z-scores
+fantasy-optimizer recommend --days 3        # only the next 3 days
+fantasy-optimizer recommend --no-cache      # force a fresh ESPN pull
+fantasy-optimizer recommend --proj-weight 0.7   # trust projections more
+```
+
+Output sections: a plan header (games & value for the week), a per-day optimal lineup,
+the top streaming moves (add → drop with the value gain), an injured/IR panel, and the
+top free agents by value.
+
+## Tuning
+
+- **`proj_weight`** (0–1): higher leans on ESPN projections, lower on season actuals. Early
+  season, raise it; late season, lower it.
+- **`games_weight`**: a per-started-game bonus. `0` benches below-replacement players;
+  raise it to chase volume and field marginal players on open days.
+- **`lock_value`**: roster players at/above this 8-cat value are never suggested as drops.
+
+## Development
+
+```bash
+pip install -e ".[dev]"
+pytest
+```
 
 ## License
 

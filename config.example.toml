@@ -19,6 +19,14 @@ year = 2026
 espn_s2 = ""   # [FO_ESPN_S2]
 swid = ""      # [FO_SWID]
 
+# Which team is yours. Set one of these; if both are blank the tool tries to match your
+# team via the SWID owner id, and otherwise lists the teams so you can pick.
+team_id = 0          # [FO_TEAM_ID]  (0/blank = unset)
+team_name = ""       # [FO_TEAM_NAME] team name or abbreviation, case-insensitive
+
+# NOTE: starting-lineup slots are auto-detected from your league settings. This league is
+# 1 PG, 1 SG, 1 SF, 1 PF, 2 C, 4 UTIL (10 active) + 4 bench + 1 IR.
+
 [valuation]
 # Weight on ESPN projections vs season-to-date actuals when blending a player's
 # per-game line: blended = proj_weight * projected + (1 - proj_weight) * actual.
@@ -32,6 +40,9 @@ pool_size = 200
 min_value = 0.0
 # Roster players with value at or above this are "locked" and never suggested as drops. [FO_LOCK_VALUE]
 lock_value = 6.0
+# Bonus added to each started game's value. 0 = pure category value (bench below-replacement
+# players). Raise it to lean into "stream for volume" and field marginal players. [FO_GAMES_WEIGHT]
+games_weight = 0.0
 
 [cache]
 # Time-to-live (seconds) for cached ESPN API responses. The FA pull is slow. [FO_CACHE_TTL]

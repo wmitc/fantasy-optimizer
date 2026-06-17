@@ -23,10 +23,13 @@ class Config:
     year: int
     espn_s2: str | None
     swid: str | None
+    team_id: int | None
+    team_name: str | None
     proj_weight: float
     pool_size: int
     min_value: float
     lock_value: float
+    games_weight: float
     cache_ttl: int
 
     @property
@@ -40,10 +43,13 @@ _FIELDS: list[tuple[str, str, str, type | object, object]] = [
     ("league", "year", "FO_YEAR", int, None),
     ("league", "espn_s2", "FO_ESPN_S2", str, None),
     ("league", "swid", "FO_SWID", str, None),
+    ("league", "team_id", "FO_TEAM_ID", int, None),
+    ("league", "team_name", "FO_TEAM_NAME", str, None),
     ("valuation", "proj_weight", "FO_PROJ_WEIGHT", float, 0.5),
     ("valuation", "pool_size", "FO_POOL_SIZE", int, 200),
     ("streaming", "min_value", "FO_MIN_VALUE", float, 0.0),
     ("streaming", "lock_value", "FO_LOCK_VALUE", float, 6.0),
+    ("streaming", "games_weight", "FO_GAMES_WEIGHT", float, 0.0),
     ("cache", "ttl_seconds", "FO_CACHE_TTL", int, 1800),
 ]
 
