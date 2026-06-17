@@ -93,6 +93,30 @@ streaming for games meaningfully boosts counting-stat production. Running withou
 `--max-add-value` shows a much higher *theoretical* ceiling, but it "streams" stars that
 would never realistically clear waivers, so the capped run is the honest number.
 
+#### Per-week picture (regular season)
+
+Because H2H is won or lost **each week independently**, the weekly matchup is the right unit
+to judge streaming. The full-season totals above are skewed by the playoff/All-Star periods
+(weeks 17–19 span 14–21 days each), so restricting to the **regular-season weekly matchups**
+(`--to-week 16`, all 6–7 days) gives a cleaner read:
+
+| | Total | Per week (avg) |
+|---|------:|------:|
+| Set-and-forget games | 424 | ~26.5 |
+| Streaming games | **601** | **~37.6** |
+| **Extra games** | **+177** | **~+11.1** |
+
+Key takeaways:
+
+- **~+42% more player-games per matchup**, turning a ~26–27 game baseline into ~38.
+- **Consistent, not outlier-driven** — every single week lands between **+8 and +12** extra
+  games. Even the short All-Star-break week (only 14 baseline games) still gained +8.
+- The picks are genuine waiver-wire players (e.g. Jaylon Tyson, Malcolm Brogdon, Al Horford,
+  Dillon Brooks, Obi Toppin, Robert Williams III), not stars — so the edge is realistic.
+
+~11 extra player-games every week is a large, repeatable volume advantage across all six
+counting categories — the core argument for streaming.
+
 ## Tuning
 
 - **`proj_weight`** (0–1): higher leans on ESPN projections, lower on season actuals. Early
