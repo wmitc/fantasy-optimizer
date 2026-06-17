@@ -79,8 +79,10 @@ injury statuses (used as proxies for every historical week), and production is m
 
 ### Example results
 
-Backtest of one team (Monstars) over the full 2025-26 season, streaming up to 3 waiver
-pickups per week capped at replacement-level value (`--max-adds 3 --max-add-value 3.0`):
+Backtest of one team (**Monstars**) over the full 2025-26 season, streaming up to 3 waiver
+pickups per week capped at replacement-level value (`--max-adds 3 --max-add-value 3.0`).
+That team finished **2nd (runner-up)** in the 12-team league with a 73–53–2 category record —
+real-world validation that aggressive streaming for games is a winning approach:
 
 | Strategy | Games | PTS | REB | AST | STL | BLK | 3PM |
 |----------|------:|------:|------:|------:|----:|----:|------:|
