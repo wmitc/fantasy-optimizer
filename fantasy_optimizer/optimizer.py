@@ -13,6 +13,7 @@ more productive games out of the week.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
@@ -22,6 +23,10 @@ from .schedule import players_by_day
 # Lineup slots that are not part of the active starting lineup.
 NON_STARTING_SLOTS = {"BE", "IR"}
 
+# Fallback starting lineup when live league settings can't be fetched.
+# The user's league: 1 PG, 1 SG, 1 SF, 1 PF, 2 C, 4 UTIL (10 active) + 4 bench + 1 IR.
+DEFAULT_STARTING_SLOTS = {"PG": 1, "SG": 1, "SF": 1, "PF": 1, "C": 2, "UT": 4}
+
 # Injury statuses that make a player unavailable to accrue stats this week.
 UNAVAILABLE_STATUSES = {"OUT", "SUSPENSION", "INJURY_RESERVE", "NINETY_DAY_DL", "DL"}
 
@@ -30,7 +35,7 @@ UNAVAILABLE_STATUSES = {"OUT", "SUSPENSION", "INJURY_RESERVE", "NINETY_DAY_DL", 
 class WeeklyPlan:
     """Result of optimizing a roster over the week's remaining days."""
 
-    by_day: dict[int, list[tuple[object, str]]]  # day -> [(player, slot)]
+    by_day: dict[int, list[tuple[Any, str]]]  # day -> [(player, slot)]
     value: float
     games: int
 
@@ -39,8 +44,8 @@ class WeeklyPlan:
 class StreamMove:
     """A recommended add/drop swap and its effect on weekly value."""
 
-    add: object
-    drop: object
+    add: Any
+    drop: Any
     gain: float
     new_value: float
     extra: dict = field(default_factory=dict)
@@ -71,7 +76,7 @@ def assign_day(
     seats: list[str],
     values: dict,
     games_weight: float = 0.0,
-) -> tuple[list[tuple[object, str]], float]:
+) -> tuple[list[tuple[Any, str]], float]:
     """Optimally fill ``seats`` from ``players`` to maximize total value for one day.
 
     A player fills a seat only if the seat's slot is in the player's ``eligibleSlots``.
@@ -98,7 +103,7 @@ def assign_day(
 
     rows, cols = linear_sum_assignment(cost)
 
-    assignments: list[tuple[object, str]] = []
+    assignments: list[tuple[Any, str]] = []
     total = 0.0
     for i, j in zip(rows, cols):
         if j < m and seats[j] in eligible[i]:
