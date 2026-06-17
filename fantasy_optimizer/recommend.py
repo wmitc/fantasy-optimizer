@@ -78,8 +78,15 @@ def build_recommendation(
     day_horizon: int | None = None,
     proj_weight: float | None = None,
     min_value: float | None = None,
+    as_of: int | None = None,
 ) -> Recommendation:
-    """Fetch, value, optimize, and assemble a full recommendation for the week."""
+    """Fetch, value, optimize, and assemble a full recommendation for the week.
+
+    ``as_of`` is the scoring-period (day) the plan is computed "as of"; days before it are
+    treated as already played. It defaults to the live current day, but when ``matchup_period``
+    is given explicitly it defaults to that week's first day so past/completed weeks replay
+    in full (useful in the off-season).
+    """
     client = EspnClient(config, use_cache=use_cache)
     team = resolve_team(client, config)
     roster = list(team.roster)
@@ -89,7 +96,9 @@ def build_recommendation(
 
     mp = matchup_period or client.current_matchup_period
     week_days = client.matchup_scoring_periods(mp)
-    remaining = schedule.remaining_days(week_days, client.scoring_period)
+    if as_of is None:
+        as_of = week_days[0] if matchup_period is not None and week_days else client.scoring_period
+    remaining = schedule.remaining_days(week_days, as_of)
     if day_horizon is not None:
         remaining = remaining[:day_horizon]
 

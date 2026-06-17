@@ -23,9 +23,9 @@ from .schedule import players_by_day
 # Lineup slots that are not part of the active starting lineup.
 NON_STARTING_SLOTS = {"BE", "IR"}
 
-# Fallback starting lineup when live league settings can't be fetched.
-# The user's league: 1 PG, 1 SG, 1 SF, 1 PF, 2 C, 4 UTIL (10 active) + 4 bench + 1 IR.
-DEFAULT_STARTING_SLOTS = {"PG": 1, "SG": 1, "SF": 1, "PF": 1, "C": 2, "UT": 4}
+# Fallback starting lineup when live league settings can't be fetched. Matches the user's
+# league (auto-detected from mSettings): 1 each PG/SG/SF/PF/C/G/F + 3 UTIL = 10 active.
+DEFAULT_STARTING_SLOTS = {"PG": 1, "SG": 1, "SF": 1, "PF": 1, "C": 1, "G": 1, "F": 1, "UT": 3}
 
 # Injury statuses that make a player unavailable to accrue stats this week.
 UNAVAILABLE_STATUSES = {"OUT", "SUSPENSION", "INJURY_RESERVE", "NINETY_DAY_DL", "DL"}
