@@ -41,7 +41,7 @@ file is loaded automatically. See `config.example.toml` for the full annotated l
   `games_weight`.
 
 Starting-lineup slots are **auto-detected** from your league. This league runs
-1 PG, 1 SG, 1 SF, 1 PF, 2 C, 4 UTIL (10 active) + 4 bench + 1 IR.
+1 PG, 1 SG, 1 SF, 1 PF, 1 C, 1 G, 1 F, 3 UTIL (10 active) + 4 bench + 1 IR.
 
 ## Usage
 
@@ -76,6 +76,22 @@ Fidelity caveats: a finished season only exposes each team's *final* roster, FA 
 injury statuses (used as proxies for every historical week), and production is modeled as the
 **season average per scheduled game**, not the literal box score. So it measures the
 *opportunity* streaming creates given real schedules, not a move-by-move replay.
+
+### Example results
+
+Backtest of one team (Monstars) over the full 2025-26 season, streaming up to 3 waiver
+pickups per week capped at replacement-level value (`--max-adds 3 --max-add-value 3.0`):
+
+| Strategy | Games | PTS | REB | AST | STL | BLK | 3PM |
+|----------|------:|------:|------:|------:|----:|----:|------:|
+| Set-and-forget | 598 | 8,884 | 3,103 | 2,103 | 560 | 320 | 862 |
+| Streaming | **843** | 10,981 | 4,157 | 2,487 | 698 | 474 | 1,135 |
+| **Gain** | **+245** | +2,097 | +1,054 | +384 | +138 | +154 | +273 |
+
+That's **+245 games over the season (~13 per week across 57 adds)** — concrete evidence that
+streaming for games meaningfully boosts counting-stat production. Running without
+`--max-add-value` shows a much higher *theoretical* ceiling, but it "streams" stars that
+would never realistically clear waivers, so the capped run is the honest number.
 
 ## Tuning
 
