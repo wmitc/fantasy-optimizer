@@ -77,6 +77,22 @@ injury statuses (used as proxies for every historical week), and production is m
 **season average per scheduled game**, not the literal box score. So it measures the
 *opportunity* streaming creates given real schedules, not a move-by-move replay.
 
+### Example results
+
+Backtest of one team (Monstars) over the full 2025-26 season, streaming up to 3 waiver
+pickups per week capped at replacement-level value (`--max-adds 3 --max-add-value 3.0`):
+
+| Strategy | Games | PTS | REB | AST | STL | BLK | 3PM |
+|----------|------:|------:|------:|------:|----:|----:|------:|
+| Set-and-forget | 598 | 8,884 | 3,103 | 2,103 | 560 | 320 | 862 |
+| Streaming | **843** | 10,981 | 4,157 | 2,487 | 698 | 474 | 1,135 |
+| **Gain** | **+245** | +2,097 | +1,054 | +384 | +138 | +154 | +273 |
+
+That's **+245 games over the season (~13 per week across 57 adds)** — concrete evidence that
+streaming for games meaningfully boosts counting-stat production. Running without
+`--max-add-value` shows a much higher *theoretical* ceiling, but it "streams" stars that
+would never realistically clear waivers, so the capped run is the honest number.
+
 ## Tuning
 
 - **`proj_weight`** (0–1): higher leans on ESPN projections, lower on season actuals. Early
