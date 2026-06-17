@@ -119,6 +119,15 @@ Key takeaways:
 ~11 extra player-games every week is a large, repeatable volume advantage across all six
 counting categories — the core argument for streaming.
 
+#### The other side: optimization isn't everything
+
+That 2nd-place team lost the championship in a lopsided final after **Anthony Edwards, Naz
+Reid, and Nikola Vučević all went down with injuries heading into the finals**. No amount of
+waiver-wire optimization makes up for losing that much production at once — injuries to key
+players can take you out of contention regardless of how well you stream. This tool maximizes
+the games and value you *can* control; it can't insulate you from variance like a finals-week
+injury wave.
+
 ## Tuning
 
 - **`proj_weight`** (0–1): higher leans on ESPN projections, lower on season actuals. Early
