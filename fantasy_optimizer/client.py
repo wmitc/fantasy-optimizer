@@ -9,11 +9,12 @@ from __future__ import annotations
 import hashlib
 import pickle
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import Callable, TypeVar
 
 from espn_api.basketball import League
-from espn_api.basketball.constant import POSITION_MAP
+from espn_api.basketball.constant import POSITION_MAP, PRO_TEAM_MAP
 from espn_api.basketball.player import Player
 from espn_api.basketball.team import Team
 
@@ -22,6 +23,8 @@ from .config import Config
 T = TypeVar("T")
 
 _CACHE_DIR = Path(".cache")
+# Reverse map of pro-team abbreviation -> id (PRO_TEAM_MAP is id -> abbrev).
+_TEAM_ABBR_TO_ID = {abbr: tid for tid, abbr in PRO_TEAM_MAP.items() if isinstance(tid, int)}
 
 
 class EspnClient:
@@ -105,12 +108,43 @@ class EspnClient:
                     return team
         return None
 
+    def _attach_schedule(self, player: Player) -> None:
+        """Populate ``player.schedule`` from the league's pro schedule.
+
+        ``League.free_agents`` builds Player objects without a schedule, so the optimizer
+        would see no games for any free agent. We rebuild it the same way Player.__init__
+        does, mapping the player's pro team to its games-by-scoring-period.
+        """
+        if getattr(player, "schedule", None):
+            return
+        player.schedule = {}
+        team_id = _TEAM_ABBR_TO_ID.get(getattr(player, "proTeam", None))
+        if team_id is None:
+            return
+        games_by_period = self.league.pro_schedule.get(team_id, {})
+        for period, games in games_by_period.items():
+            if not games:
+                continue
+            game = games[0]
+            opp = game["awayProTeamId"] if game["awayProTeamId"] != team_id else game["homeProTeamId"]
+            player.schedule[period] = {
+                "team": PRO_TEAM_MAP.get(opp),
+                "date": datetime.fromtimestamp(game["date"] / 1000.0),
+            }
+
     def free_agents(self, size: int | None = None, position: str | None = None) -> list[Player]:
-        """Free-agent / waiver pool for the current week (cached)."""
+        """Free-agent / waiver pool for the current week (cached), with schedules attached."""
         size = size or self.config.pool_size
         sp = self.scoring_period
         key = f"fa:{self.config.league_id}:{self.config.year}:{sp}:{size}:{position}"
-        return self._cached(key, lambda: self.league.free_agents(size=size, position=position))
+
+        def fetch() -> list[Player]:
+            players = self.league.free_agents(size=size, position=position)
+            for player in players:
+                self._attach_schedule(player)
+            return players
+
+        return self._cached(key, fetch)
 
     def roster_slots(self) -> dict[str, int]:
         """Starting + bench/IR slot counts, e.g. {'PG': 1, ..., 'UT': 3, 'BE': 4, 'IR': 1}.

@@ -130,6 +130,7 @@ def cmd_recommend(args: argparse.Namespace) -> int:
             day_horizon=args.days,
             proj_weight=args.proj_weight,
             min_value=args.min_value,
+            as_of=args.as_of,
         )
     except LookupError as exc:
         console.print(f"[red]{exc}[/red]")
@@ -145,6 +146,7 @@ def build_parser() -> argparse.ArgumentParser:
     rec = sub.add_parser("recommend", help="Recommend streaming moves and a daily lineup")
     rec.add_argument("--config", help="Path to config.toml (default: search cwd/package root)")
     rec.add_argument("--matchup", type=int, help="Matchup period (default: current)")
+    rec.add_argument("--as-of", type=int, help="Plan as of this scoring-period/day (default: week start when --matchup is set, else today)")
     rec.add_argument("--days", type=int, help="Limit to the next N remaining days")
     rec.add_argument("--proj-weight", type=float, help="Override projection/actual blend weight")
     rec.add_argument("--min-value", type=float, help="Override minimum FA value to consider")
