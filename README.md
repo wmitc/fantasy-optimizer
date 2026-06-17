@@ -79,7 +79,7 @@ injury statuses (used as proxies for every historical week), and production is m
 
 ### Example results
 
-Backtest of one team (**Monstars**) over the full 2025-26 season, streaming up to 3 waiver
+Backtest of my team (**Monstars**) over the full 2025-26 season, streaming up to 3 waiver
 pickups per week capped at replacement-level value (`--max-adds 3 --max-add-value 3.0`).
 That team finished **2nd (runner-up)** in the 12-team league with a 73–53–2 category record —
 real-world validation that aggressive streaming for games is a winning approach:
@@ -121,11 +121,11 @@ counting categories — the core argument for streaming.
 
 #### The other side: optimization isn't everything
 
-That 2nd-place team lost the championship in a lopsided final after **Anthony Edwards, Naz
-Reid, and Nikola Vučević all went down with injuries heading into the finals**. No amount of
-waiver-wire optimization makes up for losing that much production at once — injuries to key
+I ultimately lost in the championship in a lopsided way after Anthony Edwards, Naz
+Reid, and Nikola Vučević all went down with injuries heading into the finals. It just goes to show that No amount of
+waiver-wire optimization isn't everything. Injuries to key
 players can take you out of contention regardless of how well you stream. This tool maximizes
-the games and value you *can* control; it can't insulate you from variance like a finals-week
+the games and value you *can* control, but it can't insulate you from variance like a finals-week
 injury wave.
 
 ## Tuning
