@@ -41,7 +41,7 @@ file is loaded automatically. See `config.example.toml` for the full annotated l
   `games_weight`.
 
 Starting-lineup slots are **auto-detected** from your league. This league runs
-1 PG, 1 SG, 1 SF, 1 PF, 2 C, 4 UTIL (10 active) + 4 bench + 1 IR.
+1 PG, 1 SG, 1 SF, 1 PF, 1 C, 1 G, 1 F, 3 UTIL (10 active) + 4 bench + 1 IR.
 
 ## Usage
 
